@@ -38,33 +38,70 @@
   ];
 
   /* ═══════════════════════════════════════════════════════════════
-     DATA LOADING — Fetch from JSON files
+     DATA LOADING — Instant Load & Progressive Background Fetch
      ═══════════════════════════════════════════════════════════════ */
 
-  async function loadData() {
-    /* ── Always check localStorage FIRST — admin panel saves here ── */
+  /* ── IndexedDB Cache for Instant Portfolio Loading (30MB+ support) ── */
+  const DB_NAME = 'OmarPortfolioDB';
+  const DB_STORE = 'portfolio';
+
+  function openDB() {
+    return new Promise(resolve => {
+      if (!window.indexedDB) return resolve(null);
+      const req = indexedDB.open(DB_NAME, 1);
+      req.onupgradeneeded = () => {
+        try { req.result.createObjectStore(DB_STORE); } catch(e) {}
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => resolve(null);
+    });
+  }
+
+  async function getLocalPortfolioCache() {
+    try {
+      const db = await openDB();
+      if (!db) return null;
+      return new Promise(resolve => {
+        const tx = db.transaction(DB_STORE, 'readonly');
+        const req = tx.objectStore(DB_STORE).get('portfolio_items');
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => resolve(null);
+      });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  async function setLocalPortfolioCache(items) {
+    try {
+      const db = await openDB();
+      if (!db) return;
+      const tx = db.transaction(DB_STORE, 'readwrite');
+      tx.objectStore(DB_STORE).put(items, 'portfolio_items');
+    } catch (e) {}
+  }
+
+  /** Loads fast initial data (profile, services) immediately without blocking */
+  async function loadInitialData() {
     const savedPortfolio = localStorage.getItem('admin_portfolio');
     const savedProfile   = localStorage.getItem('admin_profile');
     const savedServices  = localStorage.getItem('admin_services');
 
-    /* ── Load defaults from JSON or data.js ── */
     let defaults = null;
     try {
-      const [profileRes, servicesRes, portfolioRes] = await Promise.all([
+      const [profileRes, servicesRes] = await Promise.all([
         fetch('data/profile.json'),
-        fetch('data/services.json'),
-        fetch('data/portfolio.json')
+        fetch('data/services.json')
       ]);
-      if (profileRes.ok && servicesRes.ok && portfolioRes.ok) {
+      if (profileRes.ok && servicesRes.ok) {
         defaults = {
           profile: await profileRes.json(),
           services: await servicesRes.json(),
-          portfolio: await portfolioRes.json()
+          portfolio: { sections: DEFAULT_SECTIONS, items: [] }
         };
       }
-    } catch (e) { /* ignore fetch errors */ }
+    } catch (e) {}
 
-    /* Fallback to window.PORTFOLIO_DATA if JSON fetch failed */
     if (!defaults && window.PORTFOLIO_DATA) {
       const d = window.PORTFOLIO_DATA;
       defaults = {
@@ -83,42 +120,68 @@
       defaults = {
         profile: window.PORTFOLIO_DATA ? window.PORTFOLIO_DATA.profile : {},
         services: window.PORTFOLIO_DATA ? window.PORTFOLIO_DATA.services : [],
-        portfolio: {
-          sections: DEFAULT_SECTIONS,
-          items: []
-        }
+        portfolio: { sections: DEFAULT_SECTIONS, items: [] }
       };
     }
 
-    /* ── Apply localStorage overrides ── */
     profileData  = savedProfile  ? JSON.parse(savedProfile)  : defaults.profile;
     servicesData = savedServices ? JSON.parse(savedServices) : defaults.services;
 
-    /* Portfolio: load from admin-data.json (deployed via Netlify) */
-    let siteItems = null;
+    portfolioData = {
+      sections: DEFAULT_SECTIONS,
+      items: []
+    };
+
+    return true;
+  }
+
+  /** Progressively loads the 30MB portfolio data and updates UI smoothly */
+  async function loadPortfolioAsync() {
+    // 1. Instant load from IndexedDB cache if available
+    const cachedItems = await getLocalPortfolioCache();
+    if (cachedItems && cachedItems.length > 0) {
+      portfolioData.items = cachedItems;
+      renderPortfolioSections();
+      renderCategoryNavigations();
+      initScrollAnimations();
+    } else {
+      // Show skeleton loader while first-time downloading
+      if (sectionsContainer) {
+        sectionsContainer.innerHTML = `
+          <div class="portfolio-skeleton-loader">
+            <div class="portfolio-loader-status">
+              <div class="portfolio-mini-spinner"></div>
+              <span>Loading portfolio works...</span>
+            </div>
+            <div class="skeleton-grid">
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+              <div class="skeleton-card"></div>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    // 2. Fetch fresh admin-data.json from server
     try {
       const res = await fetch('data/admin-data.json');
       if (res.ok) {
         const data = await res.json();
-        if (data && data.length > 0) siteItems = data;
+        if (data && data.length > 0) {
+          portfolioData.items = data;
+          setLocalPortfolioCache(data);
+          renderPortfolioSections();
+          renderCategoryNavigations();
+          initScrollAnimations();
+        }
       }
-    } catch(e) {}
-
-    if (siteItems) {
-      portfolioData = {
-        sections: defaults.portfolio.sections || DEFAULT_SECTIONS,
-        items: siteItems
-      };
-    } else {
-      portfolioData = defaults.portfolio;
+    } catch(e) {
+      console.warn('Portfolio fetch error:', e);
     }
-
-    /* Ensure sections exist */
-    if (!portfolioData.sections) {
-      portfolioData.sections = DEFAULT_SECTIONS;
-    }
-
-    return true;
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -1035,7 +1098,7 @@
     // Hide loading screen once data is loaded and DOM is ready
     setTimeout(() => {
       if (loadingScreen) loadingScreen.classList.add('hidden');
-    }, 600);
+    }, 100);
   }
 
   /* ═══════════════════════════════════════════════════════════════
@@ -1150,26 +1213,19 @@
      ═══════════════════════════════════════════════════════════════ */
 
   async function init() {
-    // Load data from JSON files
-    const dataLoaded = await loadData();
+    // 1. Load fast lightweight profile & services data immediately
+    await loadInitialData();
 
-    if (!dataLoaded) {
-      console.error('Could not load portfolio data. Check that data/*.json files exist.');
-      hideLoading();
-      return;
-    }
-
-    // Render content from data
+    // 2. Render all immediate sections (Hero, Bio, Skills, Experience, Services)
     renderBio();
     renderStats();
     renderSkills();
     renderExperience();
     renderEducation();
     renderServices();
-    renderPortfolioSections();
     renderCategoryNavigations();
 
-    // Interactive features
+    // 3. Initialize all interactive features
     initScrollAnimations();
     animateCounters();
     initNavScroll();
@@ -1182,8 +1238,11 @@
     initTypingEffect();
     initParticles();
 
-    // Hide loading
+    // 4. Reveal the website IMMEDIATELY (< 150ms) so user never sees a stalled loading screen!
     hideLoading();
+
+    // 5. Progressively fetch and render the 30MB portfolio data in the background
+    loadPortfolioAsync();
   }
 
   // Start
