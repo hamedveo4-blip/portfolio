@@ -2114,50 +2114,52 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
   transform: translateY(-3px);
 }
 
-/* ─── Floating Quick Navigation Dock ────────────────────────── */
+/* ─── Floating Quick Navigation Dock (Bottom-Left Mini Dock) ── */
 .floating-side-nav {
   position: fixed;
-  right: 24px;
-  top: 50%;
-  transform: translateY(-50%) translateX(90px);
+  left: 20px;
+  bottom: 20px;
+  right: auto;
+  top: auto;
+  transform: translateY(40px);
   z-index: 980;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-              transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: opacity 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .floating-side-nav.visible {
   opacity: 1;
   pointer-events: auto;
-  transform: translateY(-50%) translateX(0);
+  transform: translateY(0);
 }
 
 .floating-nav-dock {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 8px;
-  padding: 12px 8px;
-  background: rgba(14, 14, 22, 0.84);
+  gap: 4px;
+  padding: 4px 6px;
+  background: rgba(12, 12, 18, 0.88);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 40px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 24px rgba(108, 92, 231, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 100px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 16px rgba(108, 92, 231, 0.15);
 }
 
 .floating-nav-label-pill {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.05);
   color: var(--accent-3);
-  font-size: 0.75rem;
-  margin-bottom: 2px;
+  font-size: 0.72rem;
+  margin-right: 2px;
 }
 
 .floating-nav-label-pill span {
@@ -2166,55 +2168,57 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
 
 .floating-nav-links {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .floating-nav-btn {
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-secondary);
   background: transparent;
-  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.78rem;
   border: 1px solid transparent;
 }
 
 .floating-nav-btn:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.09);
-  border-color: rgba(255, 255, 255, 0.16);
-  transform: scale(1.1);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: scale(1.12);
 }
 
 .floating-nav-btn.active {
   color: #fff;
   background: var(--gradient-accent);
   border-color: transparent;
-  box-shadow: 0 0 18px rgba(108, 92, 231, 0.65);
+  box-shadow: 0 0 12px rgba(108, 92, 231, 0.7);
   transform: scale(1.15);
 }
 
 .floating-nav-btn .nav-tooltip {
   position: absolute;
-  right: calc(100% + 14px);
-  top: 50%;
-  transform: translateY(-50%) scale(0.9);
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) scale(0.9);
+  right: auto;
+  top: auto;
   opacity: 0;
   pointer-events: none;
-  background: rgba(18, 18, 26, 0.95);
+  background: rgba(14, 14, 22, 0.96);
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: #fff;
-  padding: 6px 14px;
+  padding: 5px 12px;
   border-radius: 20px;
-  font-size: 0.78rem;
+  font-size: 0.74rem;
   font-weight: 600;
   white-space: nowrap;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
@@ -2226,34 +2230,93 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
 .floating-nav-btn .nav-tooltip::after {
   content: '';
   position: absolute;
-  right: -5px;
-  top: 50%;
-  transform: translateY(-50%);
-  border-width: 5px 0 5px 5px;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px 5px 0 5px;
   border-style: solid;
-  border-color: transparent transparent transparent rgba(18, 18, 26, 0.95);
+  border-color: rgba(14, 14, 22, 0.96) transparent transparent transparent;
 }
 
 .floating-nav-btn:hover .nav-tooltip {
   opacity: 1;
-  transform: translateY(-50%) scale(1);
+  transform: translateX(-50%) scale(1);
 }
 
 .floating-nav-divider {
-  width: 22px;
-  height: 1px;
+  width: 1px;
+  height: 18px;
   background: rgba(255, 255, 255, 0.12);
-  margin: 4px 0;
+  margin: 0 2px;
 }
 
 .floating-nav-top-btn {
   color: var(--accent-3);
+  font-size: 0.75rem;
 }
 
 .floating-nav-top-btn:hover {
   color: #fff;
-  background: rgba(0, 212, 255, 0.15);
+  background: rgba(0, 212, 255, 0.18);
   border-color: var(--accent-3);
+}
+
+/* ─── Skeleton Loading for Portfolio ────────────────────────── */
+.portfolio-skeleton-loader {
+  padding: 30px 0 60px;
+  max-width: var(--container);
+  margin: 0 auto;
+  width: 90%;
+}
+
+.portfolio-loader-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 24px;
+  margin: 0 auto 30px;
+  max-width: 360px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+}
+
+.portfolio-mini-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(108, 92, 231, 0.2);
+  border-top-color: var(--accent-3);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.skeleton-card {
+  height: 260px;
+  border-radius: var(--radius);
+  background: linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
 /* ─── Mobile Menu Overlay ───────────────────────────────────── */
@@ -2537,31 +2600,30 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
   .hero-cat-list { justify-content: center; gap: 8px; }
   .hero-cat-btn { padding: 7px 14px; font-size: 0.8rem; }
 
-  /* Floating side nav on mobile — compact bottom floating dock */
+  /* Floating side nav on mobile — compact bottom-left dock */
   .floating-side-nav {
-    right: 50%;
-    bottom: 20px;
+    left: 12px;
+    bottom: 12px;
+    right: auto;
     top: auto;
-    transform: translateX(50%) translateY(90px);
+    transform: translateY(30px);
   }
   .floating-side-nav.visible {
-    transform: translateX(50%) translateY(0);
+    transform: translateY(0);
   }
   .floating-nav-dock {
-    flex-direction: row;
-    padding: 8px 14px;
-    border-radius: 100px;
-    gap: 6px;
+    padding: 3px 5px;
+    gap: 3px;
   }
-  .floating-nav-label-pill,
-  .floating-nav-divider,
-  .floating-nav-top-btn {
-    display: none;
+  .floating-nav-label-pill {
+    width: 24px;
+    height: 24px;
+    font-size: 0.65rem;
   }
   .floating-nav-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 0.85rem;
+    width: 28px;
+    height: 28px;
+    font-size: 0.72rem;
   }
   .floating-nav-btn .nav-tooltip {
     display: none;
