@@ -442,7 +442,7 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
 
 @keyframes fadeInPhoto {
   from { opacity: 0; transform: translateY(40px) scale(0.98); }
-  to   { opacity: 0.7; transform: translateY(0) scale(1); }
+  to   { opacity: 0.9; transform: translateY(0) scale(1); }
 }
 
 .hero-badge {
@@ -578,6 +578,70 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
 .btn-outline:hover {
   border-color: var(--accent-1);
   background: rgba(108, 92, 231, 0.08);
+}
+
+/* ─── Hero Quick Category Navigation ────────────────────────── */
+.hero-category-nav {
+  margin-top: 28px;
+  animation: fadeInUp 0.8s ease forwards;
+  animation-delay: 0.75s;
+  opacity: 0;
+}
+
+.hero-cat-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--accent-3);
+  margin-bottom: 12px;
+}
+
+.hero-cat-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.hero-cat-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 100px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: 0.84rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hero-cat-btn i {
+  color: var(--accent-3);
+  font-size: 0.82rem;
+  transition: transform 0.25s ease, color 0.25s ease;
+}
+
+.hero-cat-btn:hover {
+  background: rgba(108, 92, 231, 0.16);
+  border-color: var(--accent-1);
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.3);
+}
+
+.hero-cat-btn:hover i {
+  color: var(--accent-2);
+  transform: scale(1.15);
 }
 
 /* Scroll indicator */
@@ -2050,6 +2114,148 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
   transform: translateY(-3px);
 }
 
+/* ─── Floating Quick Navigation Dock ────────────────────────── */
+.floating-side-nav {
+  position: fixed;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%) translateX(90px);
+  z-index: 980;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.floating-side-nav.visible {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(-50%) translateX(0);
+}
+
+.floating-nav-dock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px;
+  background: rgba(14, 14, 22, 0.84);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 40px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 24px rgba(108, 92, 231, 0.15);
+}
+
+.floating-nav-label-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--accent-3);
+  font-size: 0.75rem;
+  margin-bottom: 2px;
+}
+
+.floating-nav-label-pill span {
+  display: none;
+}
+
+.floating-nav-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.floating-nav-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  background: transparent;
+  transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  text-decoration: none;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+}
+
+.floating-nav-btn:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: scale(1.1);
+}
+
+.floating-nav-btn.active {
+  color: #fff;
+  background: var(--gradient-accent);
+  border-color: transparent;
+  box-shadow: 0 0 18px rgba(108, 92, 231, 0.65);
+  transform: scale(1.15);
+}
+
+.floating-nav-btn .nav-tooltip {
+  position: absolute;
+  right: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.9);
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(18, 18, 26, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.floating-nav-btn .nav-tooltip::after {
+  content: '';
+  position: absolute;
+  right: -5px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 5px 0 5px 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent rgba(18, 18, 26, 0.95);
+}
+
+.floating-nav-btn:hover .nav-tooltip {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.floating-nav-divider {
+  width: 22px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.12);
+  margin: 4px 0;
+}
+
+.floating-nav-top-btn {
+  color: var(--accent-3);
+}
+
+.floating-nav-top-btn:hover {
+  color: #fff;
+  background: rgba(0, 212, 255, 0.15);
+  border-color: var(--accent-3);
+}
+
 /* ─── Mobile Menu Overlay ───────────────────────────────────── */
 .mobile-menu {
   position: fixed;
@@ -2326,6 +2532,41 @@ h1, h2, h3, h4, h5, h6 { font-family: var(--font-heading); font-weight: 700; lin
   }
   .hero-desc { margin: 0 auto 24px; font-size: 0.92rem; }
   .hero-cta { justify-content: center; gap: 12px; }
+  .hero-category-nav { margin-top: 24px; text-align: center; }
+  .hero-cat-label { justify-content: center; font-size: 0.76rem; }
+  .hero-cat-list { justify-content: center; gap: 8px; }
+  .hero-cat-btn { padding: 7px 14px; font-size: 0.8rem; }
+
+  /* Floating side nav on mobile — compact bottom floating dock */
+  .floating-side-nav {
+    right: 50%;
+    bottom: 20px;
+    top: auto;
+    transform: translateX(50%) translateY(90px);
+  }
+  .floating-side-nav.visible {
+    transform: translateX(50%) translateY(0);
+  }
+  .floating-nav-dock {
+    flex-direction: row;
+    padding: 8px 14px;
+    border-radius: 100px;
+    gap: 6px;
+  }
+  .floating-nav-label-pill,
+  .floating-nav-divider,
+  .floating-nav-top-btn {
+    display: none;
+  }
+  .floating-nav-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+  .floating-nav-btn .nav-tooltip {
+    display: none;
+  }
+
   .hero-name { font-size: clamp(1.8rem, 7vw, 2.8rem); }
   .hero-title { font-size: 1rem; }
   .hero-badge { font-size: 0.78rem; }
