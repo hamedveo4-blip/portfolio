@@ -1039,6 +1039,113 @@
   }
 
   /* ═══════════════════════════════════════════════════════════════
+     CATEGORY QUICK NAVIGATION (Hero buttons & Floating Side Dock)
+     ═══════════════════════════════════════════════════════════════ */
+
+  const CATEGORY_ICONS = {
+    'visual-concepts': 'fa-wand-magic-sparkles',
+    'social-media':    'fa-share-nodes',
+    'layouts':         'fa-table-cells-large',
+    'packaging':       'fa-box-open',
+    'branding':        'fa-fingerprint',
+    'client-logos':    'fa-handshake',
+    'ai-videos':       'fa-video'
+  };
+
+  /** Render category buttons in Hero and floating side dock */
+  function renderCategoryNavigations() {
+    const heroCatList = $('#hero-cat-list');
+    const floatingNavLinks = $('#floating-nav-links');
+    if (!portfolioData) return;
+
+    const sections = (portfolioData.sections || DEFAULT_SECTIONS)
+      .slice()
+      .sort((a, b) => a.order - b.order);
+    const items = portfolioData.items || [];
+
+    // Filter sections that actually have items
+    const activeSections = sections.filter(section => {
+      const secItems = items.filter(item => {
+        const itemSection = item.sectionId || item.category;
+        return itemSection === section.id;
+      });
+      return secItems.length > 0;
+    });
+
+    // Fallback if no items matched
+    const listToRender = activeSections.length > 0 ? activeSections : sections.filter(s => s.id !== 'client-logos');
+
+    // 1. Render Hero Category Buttons
+    if (heroCatList) {
+      heroCatList.innerHTML = listToRender.map(sec => {
+        const icon = CATEGORY_ICONS[sec.id] || 'fa-folder-open';
+        return `
+          <a href="#section-${sec.id}" class="hero-cat-btn" data-category="${sec.id}">
+            <i class="fas ${icon}"></i>
+            <span>${sec.label}</span>
+          </a>
+        `;
+      }).join('');
+    }
+
+    // 2. Render Floating Side Nav Links
+    if (floatingNavLinks) {
+      floatingNavLinks.innerHTML = listToRender.map(sec => {
+        const icon = CATEGORY_ICONS[sec.id] || 'fa-folder-open';
+        return `
+          <a href="#section-${sec.id}" class="floating-nav-btn" data-floating-section="${sec.id}" aria-label="${sec.label}">
+            <i class="fas ${icon}"></i>
+            <span class="nav-tooltip">${sec.label}</span>
+          </a>
+        `;
+      }).join('');
+    }
+  }
+
+  /** Handle floating side navigation visibility and scrollspy */
+  function initFloatingNav() {
+    const floatingNav = $('#floating-side-nav');
+    if (!floatingNav) return;
+
+    let ticking = false;
+
+    window.addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+
+      requestAnimationFrame(() => {
+        const scrollY = window.scrollY;
+
+        // Show floating dock after passing hero section (300px)
+        floatingNav.classList.toggle('visible', scrollY > 300);
+
+        // Highlight active category based on scroll position
+        const navBtns = $$('.floating-nav-btn[data-floating-section]');
+        const scrollMid = scrollY + window.innerHeight * 0.35;
+        let currentActiveId = '';
+
+        navBtns.forEach(btn => {
+          const secId = btn.dataset.floatingSection;
+          const secEl = $(`#section-${secId}`);
+          if (secEl) {
+            const top = secEl.offsetTop - 120;
+            const bottom = top + secEl.offsetHeight;
+            if (scrollMid >= top && scrollMid < bottom) {
+              currentActiveId = secId;
+            }
+          }
+        });
+
+        navBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.floatingSection === currentActiveId);
+        });
+
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
+  /* ═══════════════════════════════════════════════════════════════
      INIT
      ═══════════════════════════════════════════════════════════════ */
 
@@ -1060,6 +1167,7 @@
     renderEducation();
     renderServices();
     renderPortfolioSections();
+    renderCategoryNavigations();
 
     // Interactive features
     initScrollAnimations();
@@ -1070,6 +1178,7 @@
     initMobileMenu();
     initContactForm();
     initBackToTop();
+    initFloatingNav();
     initTypingEffect();
     initParticles();
 
